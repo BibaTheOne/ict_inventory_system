@@ -1,5 +1,8 @@
+<?php include 'auth.php'; ?>
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,9 +10,11 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
+
 <body>
     <div class="container">
         <header>
+            <a href="logout.php" style="float:right; margin-right: 10px;">Logout</a>
             <h1>Inventory Management System</h1>
             <nav>
                 <ul class="menu">
@@ -21,8 +26,13 @@
         </header>
 
         <main>
+            <!-- USERS SECTION -->
             <section id="users" class="content">
                 <h2>Users List</h2>
+                <div class="search-container">
+                    <input type="text" id="searchUsers" placeholder="Search users..." class="search-bar">
+                    <button onclick="filterTable('searchUsers', 'usersTable', 'users')">Search</button>
+                </div>
                 <form id="addUserForm" method="POST" action="add_user.php">
                     <h3>Add User</h3>
                     <input type="text" name="username" placeholder="Username" required>
@@ -33,6 +43,7 @@
                     <input type="text" name="department" placeholder="Department" required>
                     <button type="submit">Add User</button>
                 </form>
+                <a href="export_users.php<?php echo isset($_GET['search']) ? '?search=' . urlencode($_GET['search']) : ''; ?>" class="cta-button" target="_blank">Export to CSV</a>
                 <table id="usersTable">
                     <thead>
                         <tr>
@@ -52,8 +63,13 @@
                 </table>
             </section>
 
+            <!-- EQUIPMENTS SECTION -->
             <section id="equipments" class="content" style="display:none;">
                 <h2>Equipments List</h2>
+                <div class="search-container">
+                    <input type="text" id="searchEquipments" placeholder="Search equipments..." class="search-bar">
+                    <button onclick="filterTable('searchEquipments', 'equipmentsTable', 'equipments')">Search</button>
+                </div>
                 <form id="addEquipmentForm" method="POST" action="add_equipment.php">
                     <h3>Add Equipment</h3>
                     <input type="text" name="equipment_type" placeholder="Equipment Type" required>
@@ -62,6 +78,7 @@
                     <input type="text" name="barcode_no" placeholder="Barcode Number" required>
                     <button type="submit">Add Equipment</button>
                 </form>
+                <a href="export_equipments.php<?php echo isset($_GET['search']) ? '?search=' . urlencode($_GET['search']) : ''; ?>" class="cta-button" target="_blank">Export to CSV</a>
                 <table id="equipmentsTable">
                     <thead>
                         <tr>
@@ -79,8 +96,13 @@
                 </table>
             </section>
 
+            <!-- ASSIGNMENTS SECTION -->
             <section id="assignments" class="content" style="display:none;">
                 <h2>Assignments List</h2>
+                <div class="search-container">
+                    <input type="text" id="searchAssignments" placeholder="Search assignments..." class="search-bar">
+                    <button onclick="filterTable('searchAssignments', 'assignmentsTable', 'assignments')">Search</button>
+                </div>
                 <form id="addAssignmentForm" method="POST" action="add_assignment.php">
                     <h3>Add Assignment</h3>
                     <input type="number" name="equipment_id" placeholder="Equipment ID" required>
@@ -88,6 +110,7 @@
                     <input type="date" name="date_issued" required>
                     <button type="submit">Add Assignment</button>
                 </form>
+                <a href="export_assignments.php<?php echo isset($_GET['search']) ? '?search=' . urlencode($_GET['search']) : ''; ?>" class="cta-button" target="_blank">Export to CSV</a>
                 <table id="assignmentsTable">
                     <thead>
                         <tr>
@@ -107,6 +130,8 @@
             </section>
         </main>
     </div>
+
     <script src="scripts.js"></script>
 </body>
+
 </html>

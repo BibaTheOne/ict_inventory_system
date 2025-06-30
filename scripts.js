@@ -1,21 +1,39 @@
-// Function to switch between sections
+// Show selected tab section
 function showSection(sectionId) {
-    const sections = document.querySelectorAll('.content');
-    sections.forEach(section => {
-        section.style.display = 'none'; // Hide all sections
+    document.querySelectorAll('.content').forEach(section => {
+        section.style.display = 'none';
     });
-    document.getElementById(sectionId).style.display = 'block'; // Show selected section
+    document.getElementById(sectionId).style.display = 'block';
 }
 
-// Event listeners for menu items
+// Handle tab switching
 document.querySelectorAll('.menu a').forEach(link => {
-    link.addEventListener('click', function(e) {
-        e.preventDefault(); // Prevent default anchor behavior
-        document.querySelector('.menu a.active').classList.remove('active'); // Remove active class from current
-        this.classList.add('active'); // Add active class to clicked link
-        showSection(this.getAttribute('href').substring(1)); // Show section based on href
+    link.addEventListener('click', function (e) {
+        e.preventDefault();
+        document.querySelector('.menu a.active')?.classList.remove('active');
+        this.classList.add('active');
+        const section = this.getAttribute('href').substring(1);
+        showSection(section);
+        const url = new URL(window.location);
+        url.searchParams.set('tab', section);
+        history.pushState(null, '', url);
     });
 });
 
-// Initialize the dashboard to show the users section
-showSection('users');
+// Load tab from URL or default
+window.addEventListener('DOMContentLoaded', () => {
+    const tab = new URLSearchParams(window.location.search).get('tab') || 'users';
+    const link = document.querySelector(`.menu a[href="#${tab}"]`);
+    link?.click();
+});
+
+// Search with redirect to page 1
+function filterTable(inputId, tableId, section) {
+    const search = document.getElementById(inputId).value.trim();
+    const url = new URL(window.location);
+    url.searchParams.set('tab', section);
+    url.searchParams.set('search', search);
+    url.searchParams.set('page', 1);
+    window.location = url.toString();
+}
+
