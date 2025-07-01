@@ -1,17 +1,22 @@
 <?php
-session_start();
-include 'db.php'; // Make sure this connects correctly
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+include 'db.php';
 
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $username = $_POST['username'];
-    $password = $_POST['password'];
+$error = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $username = $_POST['username'] ?? '';
+    $password = $_POST['password'] ?? '';
 
     $stmt = $pdo->prepare("SELECT * FROM admin WHERE username = ?");
     $stmt->execute([$username]);
-    $admin = $stmt->fetch(PDO::FETCH_ASSOC);
+    $admin = $stmt->fetch();
 
     if ($admin && password_verify($password, $admin['password'])) {
         $_SESSION['admin'] = $admin['username'];
+        $_SESSION['role'] = $admin['role'];
         header("Location: index.php");
         exit();
     } else {
@@ -24,129 +29,116 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <html>
 
 <head>
-    <title>Login - Inventory System</title>
+    <title>Admin Login</title>
     <style>
         body {
+            background: #f2f2f2;
             font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
         }
 
-        .container {
-            background: white;
-            padding: 30px 40px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 100%;
+        .login-container {
             max-width: 400px;
+            margin: 80px auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         h2 {
             text-align: center;
-            margin-bottom: 25px;
-            color: #007BFF;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
         }
 
         input[type="text"],
         input[type="password"] {
             width: 100%;
             padding: 12px;
-            margin-bottom: 10px;
             border: 1px solid #ccc;
-            border-radius: 4px;
+            border-radius: 6px;
         }
 
         button {
-            width: 100%;
+            background: #3498db;
+            color: #fff;
             padding: 12px;
-            background-color: #007BFF;
+            width: 100%;
             border: none;
-            color: white;
-            border-radius: 4px;
-            font-size: 16px;
+            border-radius: 6px;
             cursor: pointer;
+            font-size: 16px;
         }
 
         button:hover {
-            background-color: #0056b3;
+            background: #2980b9;
         }
 
-        .password-group {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            margin-bottom: 15px;
-        }
-
-        .show-password {
-            font-size: 0.9em;
-            color: #555;
-            display: flex;
-            align-items: center;
-            margin-top: 5px;
-            cursor: pointer;
-        }
-
-        .show-password input[type="checkbox"] {
-            margin-right: 6px;
-            transform: scale(1.1);
-            cursor: pointer;
-        }
-
-        .error-message {
+        .error {
             color: red;
+            margin-bottom: 15px;
             text-align: center;
-            margin-bottom: 10px;
         }
 
-        .forgot-password {
+        .form-footer {
             text-align: center;
             margin-top: 10px;
         }
 
-        .forgot-password a {
-            color: #007BFF;
-            text-decoration: none;
+        .show-password {
+            display: flex;
+            align-items: center;
+            margin-top: -15px;
+            margin-bottom: 20px;
         }
 
-        .forgot-password a:hover {
-            text-decoration: underline;
+        .show-password input[type="checkbox"] {
+            margin-right: 8px;
         }
     </style>
 </head>
 
 <body>
 
-    <div class="container">
+    <div class="login-container">
         <h2>Admin Login</h2>
-        <?php if (isset($error)) echo "<div class='error-message'>$error</div>"; ?>
-        <form method="POST">
-            <input type="text" name="username" placeholder="Username" required>
 
-            <div class="password-group">
-                <input type="password" name="password" id="password" placeholder="Password" required>
-                <label class="show-password">
-                    <input type="checkbox" onclick="togglePassword()" id="toggle">
-                    Show password
-                </label>
+        <?php if (!empty($error)): ?>
+            <div class="error"><?= htmlspecialchars($error) ?></div>
+        <?php endif; ?>
+
+        <form method="POST" autocomplete="off">
+            <div class="form-group">
+                <input type="text" name="username" placeholder="Username" required autofocus>
+            </div>
+
+            <div class="form-group">
+                <input type="password" id="password" name="password" placeholder="Password" required>
+            </div>
+
+            <div class="show-password">
+                <input type="checkbox" onclick="togglePassword()"> <label for="password">Show Password</label>
             </div>
 
             <button type="submit">Login</button>
-
-            <div class="forgot-password">
-                <a href="forgot_password.php">Forgot Password?</a>
-            </div>
         </form>
+
+        <div class="form-footer">
+            <a href="forgot_password.php">Forgot Password?</a>
+        </div>
     </div>
 
     <script>
         function togglePassword() {
-            const field = document.getElementById("password");
-            field.type = field.type === "password" ? "text" : "password";
+            var pwd = document.getElementById("password");
+            if (pwd.type === "password") {
+                pwd.type = "text";
+            } else {
+                pwd.type = "password";
+            }
         }
     </script>
 

@@ -1,6 +1,10 @@
 <?php
 include 'auth.php';
 include 'db.php';
+if (!is_logged_in() || (!is_ict() && !is_hod())) {
+    header("Location: unauthorized.php");
+    exit;
+}
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $user_id = $_POST['user_id'];
@@ -28,11 +32,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
     <title>Edit User</title>
 </head>
+
 <body>
     <h2>Edit User</h2>
     <form method="POST" action="edit_user.php">
@@ -46,4 +53,5 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <button type="submit">Update User</button>
     </form>
 </body>
+
 </html>
